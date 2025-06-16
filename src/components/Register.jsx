@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Register.css';
 
 const Register = () => {
@@ -9,18 +9,63 @@ const Register = () => {
         password: '',
         confirmPassword: ''
     });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
+        setError(''); // Clear error on input change
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Add registration logic here
-        console.log('Registration attempt:', formData);
+        setLoading(true);
+        setError('');
+
+        // Validation
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            setError('Password must be at least 6 characters long');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: formData.email,
+                    password: formData.password
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Redirect to login page with success message
+                navigate('/login', { 
+                    state: { message: 'Registration successful! Please log in.' }
+                });
+            } else {
+                setError(data.error || 'Registration failed');
+            }
+        } catch (err) {
+            setError('Network error. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -31,6 +76,7 @@ const Register = () => {
                     <p>Join us and start your journey</p>
                 </div>
                 <form onSubmit={handleSubmit} className="auth-form">
+                    {error && <div className="error-message">{error}</div>}
                     <div className="form-group">
                         <input
                             type="text"
@@ -71,7 +117,9 @@ const Register = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="auth-button">Create Account</button>
+                    <button type="submit" className="auth-button" disabled={loading}>
+                        {loading ? 'Creating Account...' : 'Create Account'}
+                    </button>
                 </form>
                 <div className="auth-footer">
                     <p>Already have an account? <Link to="/login" className="auth-link">Sign In</Link></p>
