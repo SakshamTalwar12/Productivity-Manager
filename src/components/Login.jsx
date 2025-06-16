@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../styles/Login.css';
 
 const Login = () => {
@@ -7,18 +7,51 @@ const Login = () => {
         email: '',
         password: ''
     });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Get registration success message if it exists
+    const message = location.state?.message;
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
+        setError(''); // Clear error on input change
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Add login logic here
-        console.log('Login attempt:', formData);
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify(data.user));
+                // Redirect to dashboard
+                navigate('/dashboard');
+            } else {
+                setError(data.error || 'Login failed');
+            }
+        } catch (err) {
+            setError('Network error. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -29,6 +62,8 @@ const Login = () => {
                     <p>Sign in to continue your journey</p>
                 </div>
                 <form onSubmit={handleSubmit} className="auth-form">
+                    {message && <div className="success-message">{message}</div>}
+                    {error && <div className="error-message">{error}</div>}
                     <div className="form-group">
                         <input
                             type="email"
@@ -49,7 +84,9 @@ const Login = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="auth-button">Sign In</button>
+                    <button type="submit" className="auth-button" disabled={loading}>
+                        {loading ? 'Signing In...' : 'Sign In'}
+                    </button>
                 </form>
                 <div className="auth-footer">
                     <p>Don't have an account? <Link to="/register" className="auth-link">Register</Link></p>
