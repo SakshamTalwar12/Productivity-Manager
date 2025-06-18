@@ -41,6 +41,12 @@ nav {
     padding: 0.5rem 1rem;
 }
 
+/* Shift all nav items except the last one (login/logout) */
+.nav-links li:not(:last-child) {
+  padding-top: 8px; /* or margin-top: 6px */
+}
+
+
 .nav-links a:hover {
     color: #b19cd9;
 }
