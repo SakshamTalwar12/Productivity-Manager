@@ -1,9 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate  } from "react-router-dom";
 import "../styles/Dashboard.css";
 import ScrollAnimation from "./ScrollAnimation.jsx";
 
 function Dashboard() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
+  
+    useEffect(() => {
+      // Check if user is logged in
+      const user = localStorage.getItem('user');
+      setIsLoggedIn(!!user);
+    }, []);
+  
+    const handleLogout = () => {
+      localStorage.removeItem('user');
+      setIsLoggedIn(false);
+      navigate('/login');
+    };
   const [timerMinutes, setTimerMinutes] = useState(30);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
@@ -95,11 +109,17 @@ function Dashboard() {
         </div>
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
-          <li><Link to="/dashboard">Dashboard</Link></li>
-          <li><a href="#tasks">My Tasks</a></li>
-          <li><a href="#progress">Progress</a></li>
+          <li><Link to="/todo">My Tasks</Link></li>
+          {/* <li><Link to="/dashboard">Dashboard</Link></li> */}
+          {/* <li><a href="#progress">Progress</a></li> */}
           <li><a href="#analytics">Analytics</a></li>
+          <li><a href="/#features">Features</a></li>
           <li><Link to="/about">About</Link></li>
+          {isLoggedIn ? (
+                      <li><button onClick={handleLogout} className="login-button">Logout</button></li>
+                    ) : (
+                      <li><Link to="/login" className="login-button">Login</Link></li>
+                    )}
         </ul>
       </nav>
 

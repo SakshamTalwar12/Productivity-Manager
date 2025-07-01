@@ -5,6 +5,8 @@ import About from './components/About.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import Login from './components/Login.jsx'
 import Register from './components/Register.jsx'
+import ToDoList from './components/ToDoList.jsx';
+
 
 function App() {
   return (
@@ -15,6 +17,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/todo" element={<ToDoList />} />
       </Routes>
     </Router>
   );

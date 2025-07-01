@@ -69,10 +69,10 @@ function Home() {
           </span>
         </div>
         <ul className="nav-links">
-          <li><Link to="/">Home</Link></li>
+          {/* <li><Link to="/">Home</Link></li> */}
           <li><Link to="/dashboard">Dashboard</Link></li>
-          <li><a href="#tasks">My Tasks</a></li>
-          <li><a href="#stats">Prod Stats</a></li>
+          <li><a href="/todo">My Tasks</a></li>
+          <li><a href="#analytics">Analytics</a></li>
           <li><a href="#features">Features</a></li>
           <li><Link to="/about">About</Link></li>
           {isLoggedIn ? (

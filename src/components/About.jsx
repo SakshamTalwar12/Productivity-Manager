@@ -1,9 +1,24 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate  } from "react-router-dom";
 import "../styles/About.css";
 import ScrollAnimation from "./ScrollAnimation.jsx";
 
 function About() {
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
+  
+    useEffect(() => {
+      // Check if user is logged in
+      const user = localStorage.getItem('user');
+      setIsLoggedIn(!!user);
+    }, []);
+  
+    const handleLogout = () => {
+      localStorage.removeItem('user');
+      setIsLoggedIn(false);
+      navigate('/login');
+    };
   return (
     <>
       <ScrollAnimation 
@@ -39,10 +54,16 @@ function About() {
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
           <li><Link to="/dashboard">Dashboard</Link></li>
-          <li><a href="/#tasks">My Tasks</a></li>
-          <li><a href="/#stats">Prod Stats</a></li>
+          <li><a href="/todo">My Tasks</a></li>
+          <li><a href="/#analytics">Analytics</a></li>
           <li><a href="/#features">Features</a></li>
-          <li><Link to="/about">About</Link></li>
+          {/* <li><Link to="/about">About</Link></li> */}
+          {isLoggedIn ? (
+                      <li><button onClick={handleLogout} className="login-button">Logout</button></li>
+                    ) : (
+                      <li><Link to="/login" className="login-button">Login</Link></li>
+                    )}
+          
         </ul>
       </nav>
 
