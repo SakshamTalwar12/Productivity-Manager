@@ -15,6 +15,7 @@ body {
 
 nav {
     display: flex;
+    position:fixed;
     justify-content: flex-end;
     align-items: center;
     padding: 1rem 2rem;
@@ -74,6 +75,7 @@ nav {
 
 .hero {
     height: 100vh;
+    padding: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -81,7 +83,7 @@ nav {
     background-size: 200% 200%;
     animation: gradientBG 10s ease infinite;
     margin: 0 4rem;
-    margin-top: 2rem;
+    margin-top: 80px;
     border-radius: 100px 100px 50px 50px;
     position: relative;
     overflow: hidden;

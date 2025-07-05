@@ -1,3 +1,5 @@
+/* Dashboard.css - Fixed to match ToDoList design */
+
 * {
     margin: 0;
     padding: 0;
@@ -9,11 +11,13 @@
 body {
     background-color: #000;
     color: #fff;
+    min-height: 100vh;
 }
 
+/* Navigation */
 nav {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
     width: 100%;
@@ -23,300 +27,10 @@ nav {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 2rem;
-    margin-right: 2rem;
-}
-
-.nav-links a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1.2rem;
-    font-weight: 500;
-    transition: color 0.3s;
-    padding: 0.5rem 1rem;
-}
-
-.nav-links a:hover {
-    color: #b19cd9;
-}
-
-:root {
-    --primary-color: #b19cd9;
-    --bg-dark: #111111;
-    --card-bg: #1a1a1a;
-    --text-primary: #ffffff;
-    --text-secondary: #b0b0b0;
-}
-
-.dashboard-container {
-    display: block;
-    min-height: calc(100vh - 60px);
-    background-color: black;
-    padding: 30px;
-}
-
-.user-profile {
-    text-align: center;
-    padding: 20px 0;
-    border-bottom: 1px solid #eee;
-}
-
-/*
-.avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-bottom: 10px;
-}
-*/
-
-.productivity-score {
-    color: white;
-    font-weight: bold;
-}
-
-.dashboard-main {
-    padding: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.dashboard-main h1 {
-    text-align: center;
-    color: white;
-    margin: 20px 0 40px 0;
-    font-size: 2.5em;
-}
-
-/* Modern Stat Cards */
-.quick-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: black;
-    padding: 20px;
-    padding-bottom: 50px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.stat-card i {
-    font-size: 24px;
-    color: white;
-    margin-bottom: 10px;
-}
-
-.stat-card h3 {
-    color: white;
-    margin-bottom: 10px;
-}
-
-.stat-card p {
-    color: white;
-    font-size: 2em;
-}
-
-/* Activity Section */
-.activity-section {
-    background: black;
-    padding: 20px;
-    margin-bottom: 30px;
-}
-
-.activity-section h2 {
-    color: white;
-    margin-bottom: 20px;
-}
-
-.activity-graph {
-    height: 200px;
-    margin-top: 20px;
-}
-
-/* Dashboard Grid */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.grid-item {
-    background: black;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.grid-item h3 {
-    color: var(--text-primary);
-    font-size: 1.3em;
-    margin-bottom: 20px;
-}
-
-/* Tasks List */
-.task-list {
-    list-style: none;
-    padding: 0;
-}
-
-.task-list li {
-    padding: 10px 0;
-    border-bottom: 1px solid #333333;
-}
-
-.priority {
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.8em;
-    margin-right: 10px;
-}
-
-.high { background: #ffebee; color: #f44336; }
-.medium { background: #fff3e0; color: #ff9800; }
-.low { background: #e8f5e9; color: #4caf50; }
-
-/* Focus Timer */
-.focus-timer {
-    text-align: center;
-    background-color: black;
-}
-
-.timer-display {
-    font-size: 3em;
-    margin: 20px 0;
-    font-weight: bold;
-    color: white;
-    background-color: black;
-}
-
-.timer-controls {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.timer-btn {
-    background: white;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.timer-btn:hover {
-    background: black;
-}
-
-/* Productivity Trends */
-.productivity-trends {
-    transition: transform 0.3s ease;
-}
-
-.productivity-trends:hover {
-    transform: translateY(-5px);
-}
-
-/* Animations */
-.fade-in {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-}
-
-.fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Chart Customization */
-canvas {
-    filter: drop-shadow(0 0 10px rgba(177, 156, 217, 0.1));
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .dashboard-container {
-        padding: 15px;
-    }
-    
-    .quick-stats {
-        grid-template-columns: 1fr;
-    }
-    
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Add these styles */
-.calendar-integration {
-    margin-top: 20px;
-    padding: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-#authorize_button {
-    background: black;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 15px;
-}
-
-#calendar-content {
-    color: white;
-    font-size: 0.9em;
-}
-
-#calendar-content ul {
-    list-style: none;
-    padding: 0;
-}
-
-#calendar-content li {
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.calendar-hint {
-    text-align: center;
-    color: white;
-    font-size: 0.9em;
-    margin-top: 15px;
-    font-style: italic;
-}
-
-.stat-card,
-.activity-section,
-.grid-item,
-.task-list,
-.productivity-trends,
-.focus-timer {
-    border: 1.5px solid white;
-    border-radius: 10px;
-}
-
-.task-list li {
-    border-bottom: 1px solid #333333;
-}
-
 .logo {
     display: flex;
     align-items: center;
     gap: 1.2rem;
-    margin-right: auto;
-    padding-left: 1.5rem;
     position: relative;
 }
 
@@ -378,7 +92,344 @@ canvas {
     transform: translateY(-50%);
 }
 
-/*Logo*/
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.nav-links a:hover {
+    color: #b19cd9;
+    background: rgba(177, 156, 217, 0.1);
+}
+
+.login-button {
+    background: linear-gradient(45deg, #b19cd9, #9c89c9);
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(177, 156, 217, 0.3);
+    background: linear-gradient(45deg, #9c89c9, #8b7ac7);
+}
+
+/* Dashboard Container */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 80px;
+    min-height: calc(100vh - 80px);
+    background-color: #000;
+}
+
+.dashboard-main {
+    width: 100%;
+}
+
+.dashboard-main h1 {
+    text-align: center;
+    font-size: 3rem;
+    background: linear-gradient(45deg, #b19cd9, #d53f8c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 3rem;
+    text-shadow: 0 0 20px rgba(177, 156, 217, 0.3);
+}
+
+/* Quick Stats */
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.stat-card:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+}
+
+.stat-card i {
+    font-size: 2.5rem;
+    color: #b19cd9;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.stat-card h3 {
+    color: #fff;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.stat-card p {
+    color: #b19cd9;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Activity Section */
+.activity-section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    transition: all 0.3s ease;
+}
+
+.activity-section:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 20px rgba(255, 255, 255, 0.1);
+}
+
+.activity-section h2 {
+    color: #b19cd9;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.no-chart-placeholder {
+    color: #666;
+    font-size: 1.1rem;
+    text-align: center;
+    padding: 2rem;
+    font-style: italic;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.grid-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.grid-item:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+}
+
+.grid-item h3 {
+    color: #b19cd9;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+/* Tasks List */
+.task-list {
+    list-style: none;
+    padding: 0;
+}
+
+.task-list li {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.task-list li:last-child {
+    border-bottom: none;
+}
+
+.task-list li:hover {
+    background: rgba(255, 255, 255, 0.05);
+    padding-left: 1rem;
+    border-radius: 8px;
+}
+
+.priority {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.high { 
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.medium { 
+    background: rgba(249, 115, 22, 0.2);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.low { 
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Focus Timer */
+.focus-timer {
+    text-align: center;
+}
+
+.timer-display {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #fff;
+    margin: 2rem 0;
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(177, 156, 217, 0.3);
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.timer-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(177, 156, 217, 0.3);
+}
+
+.timer-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(177, 156, 217, 0.4);
+}
+
+.timer-btn:active {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.timer-btn:first-child {
+    background: linear-gradient(45deg, #22c55e, #16a34a);
+    color: white;
+}
+
+.timer-btn:nth-child(2) {
+    background: linear-gradient(45deg, #eab308, #ca8a04);
+    color: white;
+}
+
+.timer-btn:last-child {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+}
+
+/* Calendar Integration */
+.calendar-integration {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#authorize_button {
+    background: linear-gradient(45deg, #b19cd9, #9c89c9);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+#authorize_button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(177, 156, 217, 0.3);
+}
+
+#calendar-content {
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+#calendar-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+#calendar-content li {
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.calendar-hint {
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 @keyframes logoFloat {
     0%, 100% {
         transform: translateY(0);
@@ -404,17 +455,73 @@ canvas {
     to {
         opacity: 1;
     }
-} */
+}
 
-/* Update hover effect */
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Logo hover effects */
 .logo:hover .logo-svg {
     filter: drop-shadow(0 0 12px rgba(177, 156, 217, 0.5));
     transform: scale(1.05);
     transition: all 0.3s ease;
 }
 
-/* Responsive adjustments */
+/* Responsive Design */
 @media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .dashboard-main h1 {
+        font-size: 2.5rem;
+    }
+    
+    .quick-stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-card, .grid-item, .activity-section {
+        padding: 1.5rem;
+    }
+    
+    .timer-display {
+        font-size: 2.5rem;
+    }
+    
+    .timer-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        gap: 1rem;
+        position: absolute;
+        top: 100%;
+        right: 2rem;
+        background: rgba(0, 0, 0, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 1rem;
+        display: none;
+    }
+    
     .logo-text-full {
         display: none;
     }
@@ -422,5 +529,34 @@ canvas {
     .logo-svg {
         width: 40px;
         height: 40px;
+    }
+    
+    .task-list li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .priority {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 0.5rem;
+    }
+    
+    .dashboard-main h1 {
+        font-size: 2rem;
+    }
+    
+    .stat-card p {
+        font-size: 2rem;
+    }
+    
+    .timer-display {
+        font-size: 2rem;
     }
 }

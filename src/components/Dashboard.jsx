@@ -110,9 +110,9 @@ function Dashboard() {
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
           <li><Link to="/todo">My Tasks</Link></li>
+          <li><Link to="/analytics">Analytics</Link></li>
           {/* <li><Link to="/dashboard">Dashboard</Link></li> */}
           {/* <li><a href="#progress">Progress</a></li> */}
-          <li><a href="#analytics">Analytics</a></li>
           <li><a href="/#features">Features</a></li>
           <li><Link to="/about">About</Link></li>
           {isLoggedIn ? (

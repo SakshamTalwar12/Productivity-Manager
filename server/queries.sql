@@ -11,6 +11,7 @@ CREATE TABLE tasks (
     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
     completed_at TIMESTAMP,
     time_spent VARCHAR(50),
-    minutes INTEGER DEFAULT 25
+    minutes INTEGER DEFAULT 25,
+    paused_at TIMESTAMP
 );
 

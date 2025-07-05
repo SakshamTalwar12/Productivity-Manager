@@ -4,6 +4,8 @@ import pg from "pg";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from 'url';
+import dotenv from "dotenv";
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +17,7 @@ const db = new pg.Client({
   user: "postgres",
   host: "localhost",
   database: "productivity",
-  password: process.env.DB.PASSWORD,
+  password: process.env.DB_PASSWORD,
   port: 5432,
 });
 
@@ -104,6 +106,7 @@ app.get("/api/tasks/:userId", async (req, res) => {
         completed_at, 
         time_spent,
         minutes,
+        paused_at,
         CASE 
           WHEN completed_at IS NULL THEN 'pending'
           ELSE 'completed'
@@ -123,7 +126,8 @@ app.get("/api/tasks/:userId", async (req, res) => {
         id: task.id,
         text: task.text,
         createdAt: new Date(task.created_at).toLocaleDateString(),
-        minutes: task.minutes
+        minutes: task.minutes,
+        pausedAt: task.paused_at
       }));
     
     const completedTasks = result.rows
@@ -264,6 +268,31 @@ app.get("/api/timer-stats/:userId", async (req, res) => {
     res.json(result.rows[0]);
   } catch (err) {
     console.error("Error fetching timer stats:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Pause a task (update paused_at)
+app.put("/api/tasks/:id/pause", async (req, res) => {
+  const taskId = req.params.id;
+  const { pausedAt } = req.body;
+
+  try {
+    const result = await db.query(
+      "UPDATE tasks SET paused_at = $1 WHERE id = $2 RETURNING *",
+      [pausedAt, taskId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    res.json({
+      id: result.rows[0].id,
+      pausedAt: result.rows[0].paused_at
+    });
+  } catch (err) {
+    console.error("Error updating pause state:", err);
     res.status(500).json({ error: "Server error" });
   }
 });

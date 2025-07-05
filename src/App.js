@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard.jsx';
 import Login from './components/Login.jsx'
 import Register from './components/Register.jsx'
 import ToDoList from './components/ToDoList.jsx';
+import Analytics from './components/Analytics.jsx';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/todo" element={<ToDoList />} />
+        <Route path="/analytics" element={<Analytics />} />
       </Routes>
     </Router>
   );

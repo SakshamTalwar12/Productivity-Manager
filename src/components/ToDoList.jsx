@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../styles/ToDoList.css';
 
 function ToDoList() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   
   useEffect(() => {
     // Check if user is logged in
@@ -14,6 +15,8 @@ function ToDoList() {
   
   const handleLogout = () => {
     localStorage.removeItem('user');
+    // Clear timer state from localStorage on logout
+    localStorage.removeItem('timerState');
     setIsLoggedIn(false);
     navigate('/login');
   };
@@ -24,35 +27,96 @@ function ToDoList() {
   const [showAddTask, setShowAddTask] = useState(false);
   const [timeModal, setTimeModal] = useState({ show: false, task: null });
   const [timeSpent, setTimeSpent] = useState('');
-  const [newTaskTime, setNewTaskTime] = useState(''); // for per-task time input
+  const [newTaskTime, setNewTaskTime] = useState('');
 
   // Timer states
-  const [timerMinutes, setTimerMinutes] = useState(25); // Default 25 minutes (Pomodoro style)
-  const [currentTime, setCurrentTime] = useState(0); // Current time in seconds
+  const [timerMinutes, setTimerMinutes] = useState(25);
+  const [currentTime, setCurrentTime] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [activeTask, setActiveTask] = useState(null);
+  const [timerStartTime, setTimerStartTime] = useState(null);
+  
+  // Use ref to persist timer across renders
+  const timerRef = useRef(null);
 
-  // Timer effect
+  // Timer effect with better persistence
   useEffect(() => {
-    let interval = null;
     if (isTimerRunning && !isPaused && currentTime > 0) {
-      interval = setInterval(() => {
-        setCurrentTime(time => {
-          if (time <= 1) {
+      timerRef.current = setInterval(() => {
+        setCurrentTime(prevTime => {
+          const newTime = prevTime - 1;
+          if (newTime <= 0) {
             setIsTimerRunning(false);
             setIsPaused(false);
             // Timer finished - you could add notification here
             return 0;
           }
-          return time - 1;
+          return newTime;
         });
       }, 1000);
-    } else if (!isTimerRunning || isPaused || currentTime === 0) {
-      clearInterval(interval);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     }
-    return () => clearInterval(interval);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, [isTimerRunning, isPaused, currentTime]);
+
+  // Navigation detection - warn user when navigating away from ToDoList
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isTimerRunning && !isPaused) {
+        e.preventDefault();
+        e.returnValue = "⚠️ WARNING: Timer is running! If you leave this page, the timer will reset and your progress will be lost.";
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isTimerRunning, isPaused]);
+
+  // Load timer state from localStorage on component mount
+  useEffect(() => {
+    const savedTimerState = localStorage.getItem('timerState');
+    if (savedTimerState) {
+      try {
+        const parsed = JSON.parse(savedTimerState);
+        setTimerMinutes(parsed.timerMinutes || 25);
+        setCurrentTime(parsed.currentTime || 0);
+        setIsTimerRunning(parsed.isTimerRunning || false);
+        setIsPaused(parsed.isPaused || false);
+        setActiveTask(parsed.activeTask || null);
+        setTimerStartTime(parsed.timerStartTime || null);
+      } catch (error) {
+        console.error('Error parsing timer state:', error);
+      }
+    }
+  }, []);
+
+  // Save timer state to localStorage whenever it changes
+  useEffect(() => {
+    const timerState = {
+      timerMinutes,
+      currentTime,
+      isTimerRunning,
+      isPaused,
+      activeTask,
+      timerStartTime
+    };
+    localStorage.setItem('timerState', JSON.stringify(timerState));
+  }, [timerMinutes, currentTime, isTimerRunning, isPaused, activeTask, timerStartTime]);
 
   // Timer functions
   const increaseTimer = () => {
@@ -77,25 +141,83 @@ function ToDoList() {
     }
     setIsTimerRunning(true);
     setIsPaused(false);
+    setTimerStartTime(Date.now());
   };
 
   const pauseTimer = () => {
-    setIsPaused(!isPaused);
+    const newPausedState = !isPaused;
+    setIsPaused(newPausedState);
+    
+    if (activeTask) {
+      if (newPausedState) {
+        // Pausing - update paused_at
+        fetch(`/api/tasks/${activeTask.id}/pause`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pausedAt: new Date().toISOString() })
+        })
+        .then(res => res.json())
+        .then(data => {
+          // Update the activeTask with the new pausedAt
+          setActiveTask(prev => prev ? { ...prev, pausedAt: data.pausedAt } : null);
+        })
+        .catch(error => {
+          console.error('Error updating paused_at:', error);
+        });
+      } else {
+        // Resuming - clear paused_at
+        fetch(`/api/tasks/${activeTask.id}/pause`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pausedAt: null })
+        })
+        .then(res => res.json())
+        .then(data => {
+          // Update the activeTask to remove pausedAt
+          setActiveTask(prev => prev ? { ...prev, pausedAt: null } : null);
+        })
+        .catch(error => {
+          console.error('Error clearing paused_at:', error);
+        });
+      }
+    }
   };
 
   const endTimer = () => {
     if (activeTask) {
       const timeWorked = Math.ceil((timerMinutes * 60 - currentTime) / 60);
       completeTaskWithTimer(activeTask, `${timeWorked} minutes`);
+      
+      // Clear paused_at when completing task
+      fetch(`/api/tasks/${activeTask.id}/pause`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pausedAt: null })
+      }).catch(error => {
+        console.error('Error clearing paused_at:', error);
+      });
     }
     resetTimer();
   };
 
   const resetTimer = () => {
+    if (activeTask) {
+      // Clear paused_at when resetting timer
+      fetch(`/api/tasks/${activeTask.id}/pause`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pausedAt: null })
+      }).catch(error => {
+        console.error('Error clearing paused_at:', error);
+      });
+    }
     setIsTimerRunning(false);
     setIsPaused(false);
     setCurrentTime(timerMinutes * 60);
     setActiveTask(null);
+    setTimerStartTime(null);
+    // Clear timer state from localStorage
+    localStorage.removeItem('timerState');
   };
 
   // Format time for display
@@ -119,13 +241,19 @@ function ToDoList() {
         setNewTask('');
         setNewTaskTime('');
         setShowAddTask(false);
+      })
+      .catch(error => {
+        console.error('Error adding task:', error);
       });
     }
   };
 
   const deleteTask = (taskId) => {
     fetch(`/api/tasks/${taskId}`, { method: 'DELETE' })
-      .then(() => setTasks(prev => prev.filter(task => task.id !== taskId)));
+      .then(() => setTasks(prev => prev.filter(task => task.id !== taskId)))
+      .catch(error => {
+        console.error('Error deleting task:', error);
+      });
   };
 
   const completeTask = (task) => {
@@ -142,6 +270,9 @@ function ToDoList() {
     .then(completedTask => {
       setCompletedTasks(prev => [...prev, completedTask]);
       setTasks(prev => prev.filter(t => t.id !== task.id));
+    })
+    .catch(error => {
+      console.error('Error completing task:', error);
     });
   };
 
@@ -153,15 +284,41 @@ function ToDoList() {
         completedAt: new Date().toLocaleDateString()
       };
       
-      setCompletedTasks([...completedTasks, completedTask]);
-      setTasks(tasks.filter(task => task.id !== timeModal.task.id));
-      setTimeModal({ show: false, task: null });
-      setTimeSpent('');
+      // Call API to complete the task
+      fetch(`/api/tasks/${timeModal.task.id}/complete`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ timeSpent: timeSpent.trim() })
+      })
+      .then(res => res.json())
+      .then(completedTask => {
+        setCompletedTasks(prev => [...prev, completedTask]);
+        setTasks(prev => prev.filter(task => task.id !== timeModal.task.id));
+        setTimeModal({ show: false, task: null });
+        setTimeSpent('');
+      })
+      .catch(error => {
+        console.error('Error completing task:', error);
+        // Fallback to local state update if API fails
+        setCompletedTasks([...completedTasks, completedTask]);
+        setTasks(tasks.filter(task => task.id !== timeModal.task.id));
+        setTimeModal({ show: false, task: null });
+        setTimeSpent('');
+      });
     }
   };
 
+  // Fixed: Delete completed task with API call
   const deleteCompletedTask = (taskId) => {
-    setCompletedTasks(completedTasks.filter(task => task.id !== taskId));
+    fetch(`/api/tasks/${taskId}`, { method: 'DELETE' })
+      .then(() => {
+        setCompletedTasks(prev => prev.filter(task => task.id !== taskId));
+      })
+      .catch(error => {
+        console.error('Error deleting completed task:', error);
+        // Fallback to local state update if API fails
+        setCompletedTasks(completedTasks.filter(task => task.id !== taskId));
+      });
   };
 
   const handleKeyPress = (e) => {
@@ -184,9 +341,54 @@ function ToDoList() {
         .then(data => {
           setTasks(data.pending || []);
           setCompletedTasks(data.completed || []);
+          
+          // Check if any task was paused and restore timer state
+          const pausedTask = data.pending?.find(task => task.pausedAt);
+          if (pausedTask) {
+            // Restore timer state for paused task
+            setActiveTask(pausedTask);
+            setTimerMinutes(pausedTask.minutes || 25);
+            setIsPaused(true);
+            setIsTimerRunning(false);
+            // Calculate remaining time based on when it was paused
+            const pausedTime = new Date(pausedTask.pausedAt);
+            const now = new Date();
+            const timeDiff = Math.floor((now - pausedTime) / 1000); // seconds
+            const originalTime = (pausedTask.minutes || 25) * 60;
+            const remainingTime = Math.max(0, originalTime - timeDiff);
+            setCurrentTime(remainingTime);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching tasks:', error);
         });
     }
   }, []);
+
+  // Custom navigation handlers with timer warning
+  const handleNavigationClick = (e, destination) => {
+    if (isTimerRunning && !isPaused || isPaused) {
+      const confirmed = window.confirm("⚠️ WARNING: Timer is running! If you navigate away from this page, the timer will reset and your progress will be lost. Do you want to continue?");
+      if (!confirmed) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }
+    // If confirmed or timer not running, let the navigation proceed
+  };
+
+  const handleLogoutWithWarning = (e) => {
+    if (isTimerRunning && !isPaused || isPaused) {
+      const confirmed = window.confirm("⚠️ WARNING: Timer is running! If you navigate away from this page, the timer will reset and your progress will be lost. Do you want to continue?");
+      if (!confirmed) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }
+    handleLogout();
+  };
 
   return (
     <>
@@ -232,15 +434,15 @@ function ToDoList() {
           </span>
         </div>
         <ul className="nav-links">
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/dashboard">Dashboard</Link></li>
-          <li><a href="#analytics">Analytics</a></li>
-          <li><a href="#features">Features</a></li>
-          <li><Link to="/about">About</Link></li>
+          <li><Link to="/" onClick={(e) => handleNavigationClick(e, 'home')}>Home</Link></li>
+          <li><Link to="/dashboard" onClick={(e) => handleNavigationClick(e, 'dashboard')}>Dashboard</Link></li>
+          <li><Link to="/analytics" onClick={(e) => handleNavigationClick(e, 'analytics')}>Analytics</Link></li>
+          <li><a href="/#features" onClick={(e) => handleNavigationClick(e, 'features')}>Features</a></li>
+          <li><Link to="/about" onClick={(e) => handleNavigationClick(e, 'about')}>About</Link></li>
           {isLoggedIn ? (
-            <li><button onClick={handleLogout} className="login-button">Logout</button></li>
+            <li><button onClick={handleLogoutWithWarning} className="login-button">Logout</button></li>
           ) : (
-            <li><Link to="/login" className="login-button">Login</Link></li>
+            <li><Link to="/login" onClick={(e) => handleNavigationClick(e, 'login')} className="login-button">Login</Link></li>
           )}
         </ul>
       </nav>
