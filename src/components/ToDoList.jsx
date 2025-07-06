@@ -278,17 +278,19 @@ function ToDoList() {
 
   const handleTimeSubmit = () => {
     if (timeSpent.trim() && timeModal.task) {
-      const completedTask = {
-        ...timeModal.task,
-        timeSpent: timeSpent.trim(),
-        completedAt: new Date().toLocaleDateString()
-      };
-      
-      // Call API to complete the task
+      // Try to extract number from user input like "1 minute", "5 mins", etc.
+      const numericMatch = timeSpent.trim().match(/\d+/);
+      const parsedTime = numericMatch ? parseInt(numericMatch[0], 10) : NaN;
+
+      if (isNaN(parsedTime)) {
+        alert("Please enter time spent as a number (e.g. 5 or 10 minutes).");
+        return;
+      }
+
       fetch(`/api/tasks/${timeModal.task.id}/complete`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ timeSpent: timeSpent.trim() })
+        body: JSON.stringify({ timeSpent: parsedTime })
       })
       .then(res => res.json())
       .then(completedTask => {
@@ -300,8 +302,13 @@ function ToDoList() {
       .catch(error => {
         console.error('Error completing task:', error);
         // Fallback to local state update if API fails
-        setCompletedTasks([...completedTasks, completedTask]);
-        setTasks(tasks.filter(task => task.id !== timeModal.task.id));
+        const fallbackTask = {
+          ...timeModal.task,
+          timeSpent: parsedTime,
+          completedAt: new Date().toLocaleDateString()
+        };
+        setCompletedTasks(prev => [...prev, fallbackTask]);
+        setTasks(prev => prev.filter(task => task.id !== timeModal.task.id));
         setTimeModal({ show: false, task: null });
         setTimeSpent('');
       });

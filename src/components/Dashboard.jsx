@@ -5,19 +5,42 @@ import ScrollAnimation from "./ScrollAnimation.jsx";
 
 function Dashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const navigate = useNavigate();
+  const [dashboardStats, setDashboardStats] = useState({
+    completed_tasks: 0,
+    total_tasks: 0,
+    total_hours: 0
+  });
   
-    useEffect(() => {
-      // Check if user is logged in
-      const user = localStorage.getItem('user');
-      setIsLoggedIn(!!user);
-    }, []);
-  
-    const handleLogout = () => {
-      localStorage.removeItem('user');
-      setIsLoggedIn(false);
-      navigate('/login');
-    };
+  const navigate=useNavigate();
+
+   useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      setIsLoggedIn(true);
+
+      const userId = JSON.parse(user).id;
+      fetch(`/api/dashboard-stats/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+           console.log("📊 Type of total_hours:", typeof data.total_hours);
+           console.log("📊 Value of total_hours:", data.total_hours);
+          setDashboardStats({
+            completed_tasks: data.completed_tasks || 0,
+            total_tasks: data.total_tasks || 0,
+            total_hours: data.total_hours || "0.00"
+            
+          });
+        })
+        .catch(err => console.error("Failed to fetch dashboard stats", err));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setIsLoggedIn(false);
+    navigate('/login');
+  };
+
   const [timerMinutes, setTimerMinutes] = useState(30);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
@@ -129,13 +152,20 @@ function Dashboard() {
           <div className="quick-stats">
             <div className="stat-card">
               <i className="fas fa-check-circle"></i>
-              <h3>Tasks Completed</h3>
-              <p>24/30</p>
+               <h3>Tasks Completed Today:</h3>
+              <p>{dashboardStats.completed_tasks}/{dashboardStats.total_tasks}</p>
             </div>
             <div className="stat-card">
               <i className="fas fa-clock"></i>
-              <h3>Hours Focused</h3>
-              <p>6.5 hrs</p>
+              <h3>Hours Focused Today</h3>
+              {console.log('total_hours:', dashboardStats.total_hours, 'Type:', typeof dashboardStats.total_hours)}
+<p>
+  {(() => {
+    const str = String(dashboardStats.total_hours);
+    const [whole, decimal = "00"] = str.split(".");
+    return `${whole}.${decimal.slice(0, 2)}`;
+  })()}
+</p>
             </div>
             <div className="stat-card">
               <i className="fas fa-star"></i>

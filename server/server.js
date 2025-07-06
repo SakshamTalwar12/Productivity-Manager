@@ -96,6 +96,7 @@ app.post("/api/login", async (req, res) => {
 // Get all tasks for a user
 app.get("/api/tasks/:userId", async (req, res) => {
   const userId = req.params.userId;
+  console.log("🔍 Fetching tasks for userId:", userId);
   
   try {
     const result = await db.query(
@@ -118,6 +119,7 @@ app.get("/api/tasks/:userId", async (req, res) => {
         created_at DESC`,
       [userId]
     );
+  
     
     // Separate pending and completed tasks
     const pendingTasks = result.rows
@@ -165,6 +167,8 @@ app.post("/api/tasks", async (req, res) => {
       [userId, text, minutes || 25]
     );
     
+    console.log("✅ Task saved to DB:", result.rows[0]);
+    
     // Return the task in the format expected by frontend
     const newTask = {
       id: result.rows[0].id,
@@ -173,6 +177,7 @@ app.post("/api/tasks", async (req, res) => {
       minutes: result.rows[0].minutes
     };
     
+    console.log("📤 Sending task to frontend:", newTask);
     res.status(201).json(newTask);
   } catch (err) {
     console.error("DB error while inserting task:", err);
@@ -185,15 +190,26 @@ app.put("/api/tasks/:id/complete", async (req, res) => {
   const taskId = req.params.id;
   const { timeSpent } = req.body;
   
-  if (!timeSpent) {
-    return res.status(400).json({ error: "Time spent is required" });
+  // Ensure timeSpent is a number
+  const numericTimeSpent = parseInt(timeSpent, 10);
+  
+  console.log("🔄 Completing task:", { taskId, timeSpent, numericTimeSpent, type: typeof timeSpent });
+  
+  if (!timeSpent || isNaN(numericTimeSpent)) {
+    return res.status(400).json({ error: "Valid time spent is required" });
   }
   
   try {
+    console.log("🔍 About to update task with:", { taskId, timeSpent, timeSpentType: typeof timeSpent });
+    
     const result = await db.query(
       "UPDATE tasks SET completed_at = CURRENT_TIMESTAMP, time_spent = $1 WHERE id = $2 RETURNING *",
-      [timeSpent, taskId]
+      [numericTimeSpent, taskId]
     );
+    
+    console.log("✅ Task completion result:", result.rows[0]);
+    console.log("✅ Completed_at value:", result.rows[0].completed_at);
+    console.log("✅ Time_spent value:", result.rows[0].time_spent);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Task not found" });
@@ -207,6 +223,7 @@ app.put("/api/tasks/:id/complete", async (req, res) => {
       completedAt: new Date(result.rows[0].completed_at).toLocaleDateString()
     };
     
+    console.log("📤 Sending completed task:", completedTask);
     res.json(completedTask);
   } catch (err) {
     console.error("Error completing task:", err);
@@ -300,6 +317,37 @@ app.put("/api/tasks/:id/pause", async (req, res) => {
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
+// Dashboard stats route
+app.get("/api/dashboard-stats/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const result = await db.query(`
+      SELECT 
+        COUNT(*) FILTER (WHERE completed_at::date = CURRENT_DATE) AS completed_tasks,
+        COUNT(*) FILTER (
+          WHERE completed_at::date = CURRENT_DATE OR completed_at IS NULL
+        ) AS total_tasks,
+        COALESCE(ROUND(SUM(
+  CASE 
+    WHEN completed_at::date = CURRENT_DATE THEN time_spent
+    ELSE 0
+  END
+)::numeric / 60, 6), 0) AS total_hours
+
+      FROM tasks
+      WHERE user_id = $1
+    `, [userId]);
+    console.log("Dashboard Stats:", result.rows[0]);
+    console.log("Type of total_hours:", typeof result.rows[0].total_hours);
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    console.error("Error fetching dashboard stats:", err);
+    res.status(500).json({ error: "Failed to fetch dashboard stats" });
+  }
 });
 
 // Debug middleware
