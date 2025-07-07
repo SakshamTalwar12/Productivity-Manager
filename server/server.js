@@ -5,6 +5,9 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from 'url';
 import dotenv from "dotenv";
+import session from "express-session";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,6 +15,10 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = 5000;
+
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const db = new pg.Client({
   user: "postgres",
@@ -28,6 +35,24 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static("public"));
+
+// Session middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key-here',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Authentication middleware (optional - you can remove this if not using session-based auth)
+const isAuthenticated = (req, res, next) => {
+  // Since you're using localStorage for auth, we'll skip session validation
+  // You can implement this based on your auth strategy
+  next();
+};
 
 // Serve React app
 app.get("/", (req, res) => {
@@ -127,7 +152,7 @@ app.get("/api/tasks/:userId", async (req, res) => {
       .map(task => ({
         id: task.id,
         text: task.text,
-        createdAt: new Date(task.created_at).toLocaleDateString(),
+        createdAt: task.created_at ? new Date(task.created_at).toISOString() : null,
         minutes: task.minutes,
         pausedAt: task.paused_at
       }));
@@ -138,7 +163,7 @@ app.get("/api/tasks/:userId", async (req, res) => {
         id: task.id,
         text: task.text,
         timeSpent: task.time_spent,
-        completedAt: new Date(task.completed_at).toLocaleDateString(),
+        completedAt: task.completed_at ? new Date(task.completed_at).toISOString() : null,
         minutes: task.minutes
       }));
     
@@ -173,7 +198,7 @@ app.post("/api/tasks", async (req, res) => {
     const newTask = {
       id: result.rows[0].id,
       text: result.rows[0].text,
-      createdAt: new Date(result.rows[0].created_at).toLocaleDateString(),
+      createdAt: result.rows[0].created_at ? new Date(result.rows[0].created_at).toISOString() : null,
       minutes: result.rows[0].minutes
     };
     
@@ -220,7 +245,7 @@ app.put("/api/tasks/:id/complete", async (req, res) => {
       id: result.rows[0].id,
       text: result.rows[0].text,
       timeSpent: result.rows[0].time_spent,
-      completedAt: new Date(result.rows[0].completed_at).toLocaleDateString()
+      completedAt: result.rows[0].completed_at ? new Date(result.rows[0].completed_at).toISOString() : null
     };
     
     console.log("📤 Sending completed task:", completedTask);
@@ -347,6 +372,61 @@ app.get("/api/dashboard-stats/:userId", async (req, res) => {
   } catch (err) {
     console.error("Error fetching dashboard stats:", err);
     res.status(500).json({ error: "Failed to fetch dashboard stats" });
+  }
+});
+
+// GEMINI AI INTEGRATION - Generate response based on user tasks and question
+app.post("/generate-response", async (req, res) => {
+  try {
+    const { prompt, tasks } = req.body;
+    
+    // Validate input
+    if (!prompt || typeof prompt !== 'string') {
+      return res.status(400).json({ 
+        error: "Invalid input",
+        message: "Please provide a valid prompt" 
+      });
+    }
+
+    // Create context from tasks
+    let taskContext = "";
+    if (tasks && tasks.length > 0) {
+      taskContext = "\n\nHere are the user's recent completed tasks:\n";
+      tasks.forEach((task, index) => {
+        taskContext += `${index + 1}. Task: "${task.name}" - Time spent: ${task.timeSpent} minutes\n`;
+      });
+      taskContext += "\nPlease analyze this data and provide insights based on the user's question.";
+    } else {
+      taskContext = "\n\nNote: The user has no completed tasks in the selected time period.";
+    }
+
+    // Combine user prompt with task context
+    const fullPrompt = `You are a productivity assistant. A user is asking about their work patterns and productivity. 
+
+User's Question: "${prompt}"
+
+${taskContext}
+
+Please provide a helpful, insightful response about their productivity patterns, suggestions for improvement, or answer their specific question based on the task data provided. Be encouraging and constructive in your response.`;
+
+    console.log("🤖 Generating AI response for prompt:", prompt);
+    console.log("📊 Task context:", taskContext);
+    
+    // Generate AI response
+    const result = await model.generateContent(fullPrompt);
+    const aiResponse = result.response.text();
+    
+    console.log("✅ AI Response generated successfully");
+    
+    // Return successful response
+    res.json({ response: aiResponse });
+    
+  } catch (error) {
+    console.error("Error generating AI response:", error);
+    res.status(500).json({ 
+      error: "Server error", 
+      message: "Failed to generate response. Please try again later." 
+    });
   }
 });
 

@@ -1,10 +1,9 @@
 /* Analytics.css */
 
 .analytics-container {
-  padding: 80px;
-  max-width: 800px;
-  margin: 2rem auto;
-  /* padding: 0 2rem; */
+  padding: 80px 20px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
   background-color: #000;
   color: #fff;
   min-height: 100vh;
@@ -43,7 +42,7 @@
   margin-bottom: 2rem;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
-  min-height: 200px;
+  min-height: 350px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,7 +70,13 @@
 
 .analytics-placeholder p {
   font-size: 1.2rem;
-  margin: 0;
+  margin: 0.5rem 0;
+}
+
+.task-count {
+  font-size: 1rem !important;
+  color: #888;
+  margin-top: 1rem;
 }
 
 .analytics-result {
@@ -91,6 +96,167 @@
   line-height: 1.6;
 }
 
+/* Histogram Styles */
+.histogram-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.histogram-title {
+  color: #b19cd9;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.histogram-chart {
+  display: flex;
+  align-items: flex-end;
+  height: 300px;
+  margin: 2rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.histogram-y-axis {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-right: 1rem;
+  min-width: 80px;
+}
+
+.y-axis-label {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  color: #b19cd9;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.y-axis-ticks {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  align-items: flex-end;
+}
+
+.y-tick {
+  color: #888;
+  font-size: 0.8rem;
+  text-align: right;
+  position: relative;
+}
+
+.y-tick::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 1px;
+  background: #444;
+}
+
+.histogram-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 100%;
+  flex: 1;
+  justify-content: space-evenly;
+}
+
+.histogram-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  min-width: 60px;
+  max-width: 100px;
+  flex: 1;
+}
+
+.histogram-bar {
+  background: linear-gradient(180deg, #b19cd9, #9c89c9);
+  border-radius: 4px 4px 0 0;
+  width: 100%;
+  min-height: 20px;
+  position: relative;
+  transition: all 0.3s ease;
+  animation: barGrow 0.8s ease-out;
+  box-shadow: 0 2px 8px rgba(177, 156, 217, 0.3);
+  cursor: pointer;
+}
+
+.histogram-bar:hover {
+  background: linear-gradient(180deg, #d53f8c, #b19cd9);
+  box-shadow: 0 4px 12px rgba(177, 156, 217, 0.5);
+  transform: translateY(-2px);
+}
+
+.bar-value {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.histogram-bar:hover .bar-value {
+  opacity: 1;
+}
+
+.histogram-label {
+  color: #ccc;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  text-align: center;
+  word-wrap: break-word;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.histogram-footer {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.histogram-footer p {
+  color: #888;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@keyframes barGrow {
+  from {
+    height: 0;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+/* Controls */
 .analytics-controls {
   display: flex;
   flex-direction: column;
@@ -152,7 +318,7 @@
   gap: 0.5rem;
 }
 
-.analyze-btn:hover {
+.analyze-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(177, 156, 217, 0.4);
   background: linear-gradient(45deg, #9c89c9, #8b7ac7);
@@ -163,7 +329,7 @@
 }
 
 .analyze-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
@@ -173,6 +339,7 @@
   box-shadow: 0 4px 15px rgba(177, 156, 217, 0.3);
 }
 
+/* Chat Section */
 .chat-section {
   margin-bottom: 3rem;
 }
@@ -213,22 +380,37 @@
 
 .chat-placeholder p {
   font-size: 1.2rem;
-  margin: 0;
+  margin: 0.5rem 0;
+}
+
+.chat-help-text {
+  font-size: 1rem !important;
+  color: #888;
+  margin-top: 1rem;
 }
 
 .chat-result {
   color: #fff;
   animation: fadeInUp 0.5s ease-out;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  text-align: left;
 }
 
 .chat-result i {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 2rem;
   color: #b19cd9;
+  margin-top: 0.5rem;
+  flex-shrink: 0;
 }
 
-.chat-result p {
-  font-size: 1.2rem;
+.chat-text {
+  flex: 1;
+}
+
+.chat-text p {
+  font-size: 1.1rem;
   margin: 0;
   line-height: 1.6;
 }
@@ -254,6 +436,7 @@
   color: #fff;
   font-size: 1rem;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .question-input:focus {
@@ -265,6 +448,14 @@
 
 .question-input::placeholder {
   color: #aaa;
+}
+
+.input-help {
+  display: block;
+  margin-top: 0.5rem;
+  color: #888;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .response-btn {
@@ -283,7 +474,7 @@
   gap: 0.5rem;
 }
 
-.response-btn:hover {
+.response-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(177, 156, 217, 0.4);
   background: linear-gradient(45deg, #9c89c9, #8b7ac7);
@@ -294,7 +485,7 @@
 }
 
 .response-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
@@ -304,6 +495,7 @@
   box-shadow: 0 4px 15px rgba(177, 156, 217, 0.3);
 }
 
+/* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -315,44 +507,6 @@
   }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .analytics-container {
-    padding: 0 1rem;
-  }
-  
-  .analytics-header h1 {
-    font-size: 2.5rem;
-  }
-  
-  .analytics-box, .chat-box {
-    padding: 1.5rem;
-    min-height: 150px;
-  }
-  
-  .analytics-controls, .chat-controls {
-    gap: 1rem;
-  }
-  
-  .period-dropdown {
-    min-width: 150px;
-  }
-  
-  .analyze-btn, .response-btn {
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
-  }
-  
-  .analytics-placeholder i, .chat-placeholder i, .analytics-result i, .chat-result i {
-    font-size: 2rem;
-  }
-  
-  .analytics-placeholder p, .chat-placeholder p, .analytics-result p, .chat-result p {
-    font-size: 1rem;
-  }
-}
-
-/* Loading spinner animation */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -362,7 +516,7 @@
   animation: spin 1s linear infinite;
 }
 
-/* Common nav styles (if not already included) */
+/* Navigation Styles */
 nav {
   background: rgba(0, 0, 0, 0.95);
   padding: 1rem 2rem;

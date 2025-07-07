@@ -2,7 +2,101 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate  } from "react-router-dom";
 import "../styles/Dashboard.css";
 import ScrollAnimation from "./ScrollAnimation.jsx";
+import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, format, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 
+
+function Calendar() {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [loginDates, setLoginDates] = useState([]);
+  useEffect(() => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (user?.id) {
+    fetch(`/api/login-dates/${user.id}`)
+      .then(res => res.json())
+      .then(data => {
+        setLoginDates(data.loginDates || []);
+      })
+      .catch(err => console.error("Failed to load login dates", err));
+  }
+}, []);
+
+
+  const renderHeader = () => (
+    <div className="calendar-header">
+      <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}>‹</button>
+      <div className="calendar-month">{format(currentMonth, "MMMM yyyy")}</div>
+      <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}>›</button>
+    </div>
+  );
+
+  const renderDays = () => {
+    const days = [];
+    const dateFormat = "EE";
+    const startDate = startOfWeek(currentMonth);
+    for (let i = 0; i < 7; i++) {
+      days.push(
+        <div className="calendar-day-name" key={i}>
+          {format(addDays(startDate, i), "EEE").slice(0, 2)}
+        </div>
+      );
+    }
+    return <div className="calendar-days-row">{days}</div>;
+  };
+
+  const renderCells = () => {
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(monthStart);
+  const startDate = startOfWeek(monthStart);
+  const endDate = endOfWeek(monthEnd);
+
+  const rows = [];
+  let days = [];
+  let day = startDate;
+
+  while (day <= endDate) {
+    for (let i = 0; i < 7; i++) {
+      const cloneDay = day;
+      days.push(
+        <div
+          className={`calendar-cell ${
+            !isSameMonth(day, monthStart) ? "disabled" : ""
+          } ${isSameDay(day, selectedDate) ? "selected" : ""}`}
+          key={day}
+          onClick={() => setSelectedDate(cloneDay)}
+        >
+          <>
+           <div className="calendar-day-content">
+  <div className="day-number">{format(day, "d")}</div>
+  {loginDates.includes(format(day, "yyyy-MM-dd")) && (
+    <div className="tick">✓</div>
+  )}
+</div>
+          </>
+        </div>
+      );
+      day = addDays(day, 1);
+    }
+    rows.push(
+      <div className="calendar-row" key={day}>
+        {days}
+      </div>
+    );
+    days = [];
+  }
+
+  return <div className="calendar-body">{rows}</div>;
+};
+
+
+  return (
+    <div className="calendar-container">
+      {renderHeader()}
+      {renderDays()}
+      {renderCells()}
+    </div>
+  );
+}
 function Dashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dashboardStats, setDashboardStats] = useState({
@@ -39,59 +133,6 @@ function Dashboard() {
     localStorage.removeItem('user');
     setIsLoggedIn(false);
     navigate('/login');
-  };
-
-  const [timerMinutes, setTimerMinutes] = useState(30);
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const timerIntervalRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
-    };
-  }, []);
-
-  const startTimer = () => {
-    if (!timerRunning) {
-      setTimerRunning(true);
-      timerIntervalRef.current = setInterval(() => {
-        setTimerSeconds((prevSeconds) => {
-          if (prevSeconds === 0) {
-            setTimerMinutes((prevMinutes) => {
-              if (prevMinutes === 0) {
-                clearInterval(timerIntervalRef.current);
-                setTimerRunning(false);
-                return 0;
-              }
-              return prevMinutes - 1;
-            });
-            return 59;
-          }
-          return prevSeconds - 1;
-        });
-      }, 1000);
-    }
-  };
-
-  const pauseTimer = () => {
-    if (timerRunning) {
-      clearInterval(timerIntervalRef.current);
-      setTimerRunning(false);
-    }
-  };
-
-  const resetTimer = () => {
-    clearInterval(timerIntervalRef.current);
-    setTimerMinutes(25);
-    setTimerSeconds(0);
-    setTimerRunning(false);
-  };
-
-  const formatTime = (time) => {
-    return time < 10 ? `0${time}` : time;
   };
 
   return (
@@ -149,34 +190,41 @@ function Dashboard() {
       <div className="dashboard-container">
         <main className="dashboard-main">
           <h1>Dashboard</h1>
-          <div className="quick-stats">
-            <div className="stat-card">
-              <i className="fas fa-check-circle"></i>
-               <h3>Tasks Completed Today:</h3>
-              <p>{dashboardStats.completed_tasks}/{dashboardStats.total_tasks}</p>
+          
+          <div className="dashboard-layout">
+            <div className="left-section">
+              <div className="quick-stats">
+                <div className="stat-card">
+                  <i className="fas fa-check-circle"></i>
+                   <h3>Tasks Completed Today:</h3>
+                  <p>{dashboardStats.completed_tasks}/{dashboardStats.total_tasks}</p>
+                </div>
+                <div className="stat-card">
+                  <i className="fas fa-clock"></i>
+                  <h3>Hours Focused Today</h3>
+                  {console.log('total_hours:', dashboardStats.total_hours, 'Type:', typeof dashboardStats.total_hours)}
+                  <p>
+                    {(() => {
+                      const str = String(dashboardStats.total_hours);
+                      const [whole, decimal = "00"] = str.split(".");
+                      return `${whole}.${decimal.slice(0, 2)}`;
+                    })()}
+                  </p>
+                </div>
+                <div className="stat-card">
+                  <i className="fas fa-star"></i>
+                  <h3>Streak</h3>
+                  <p>12 days</p>
+                </div>
+              </div>
             </div>
-            <div className="stat-card">
-              <i className="fas fa-clock"></i>
-              <h3>Hours Focused Today</h3>
-              {console.log('total_hours:', dashboardStats.total_hours, 'Type:', typeof dashboardStats.total_hours)}
-<p>
-  {(() => {
-    const str = String(dashboardStats.total_hours);
-    const [whole, decimal = "00"] = str.split(".");
-    return `${whole}.${decimal.slice(0, 2)}`;
-  })()}
-</p>
-            </div>
-            <div className="stat-card">
-              <i className="fas fa-star"></i>
-              <h3>Streak</h3>
-              <p>12 days</p>
-            </div>
-          </div>
 
-          <div className="activity-section">
-            <h2>Activity Overview</h2>
-            <p className="no-chart-placeholder">Activity chart has been removed.</p>
+            <div className="right-section">
+              <div className="activity-section">
+                 <h2>Login Calendar</h2>
+                  <Calendar />
+              </div>
+            </div>
           </div>
 
           <div className="dashboard-grid">
@@ -194,23 +242,6 @@ function Dashboard() {
               <div className="calendar-integration">
                 <button id="authorize_button" style={{ visibility: 'hidden' }}>
                   Authorize Calendar
-                </button>
-              </div>
-            </div>
-            <div className="grid-item focus-timer">
-              <h3>Focus Timer</h3>
-              <div className="timer-display">
-                <span id="minutes">{formatTime(timerMinutes)}</span>:<span id="seconds">{formatTime(timerSeconds)}</span>
-              </div>
-              <div className="timer-controls">
-                <button onClick={startTimer} className="timer-btn">
-                  <i className="fas fa-play"></i>
-                </button>
-                <button onClick={pauseTimer} className="timer-btn">
-                  <i className="fas fa-pause"></i>
-                </button>
-                <button onClick={resetTimer} className="timer-btn">
-                  <i className="fas fa-redo"></i>
                 </button>
               </div>
             </div>

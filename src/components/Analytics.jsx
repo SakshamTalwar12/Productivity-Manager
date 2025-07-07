@@ -10,13 +10,37 @@ function Analytics() {
   const [chatResponse, setChatResponse] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isGettingResponse, setIsGettingResponse] = useState(false);
+  const [userTasks, setUserTasks] = useState([]);
+  const [showHistogram, setShowHistogram] = useState(false);
   const navigate = useNavigate();
   
   useEffect(() => {
     // Check if user is logged in
     const user = localStorage.getItem('user');
     setIsLoggedIn(!!user);
+
+    // Fetch user tasks if logged in
+    if (user) {
+      const userObj = JSON.parse(user);
+      fetchUserTasks(userObj.id);
+    }
+    setShowHistogram(false); // Reset on mount
   }, []);
+
+  useEffect(() => {
+    setShowHistogram(false); // Reset when period changes
+  }, [selectedPeriod]);
+
+  const fetchUserTasks = async (userId) => {
+    try {
+      const response = await fetch(`/api/tasks/${userId}`);
+      const data = await response.json();
+      // Combine pending and completed for context
+      setUserTasks([...(data.pending || []), ...(data.completed || [])]);
+    } catch (err) {
+      console.error('Error fetching user tasks:', err);
+    }
+  };
   
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -31,8 +55,15 @@ function Analytics() {
       // Simulate API call for analytics
       await new Promise(resolve => setTimeout(resolve, 2000));
       
+      const filteredTasks = getFilteredTasks();
+      const totalTimeSpent = filteredTasks.reduce((sum, task) => sum + (task.timeSpent || 0), 0);
+      const averageTime = filteredTasks.length > 0 ? Math.round(totalTimeSpent / filteredTasks.length) : 0;
+      
       const period = selectedPeriod === 'last-week' ? 'last week' : 'last month';
-      setAnalyticsResult(`Analytics for ${period} generated successfully! Here's your productivity summary...`);
+      setAnalyticsResult(
+        `Analytics for ${period}: ${filteredTasks.length} tasks completed, ${totalTimeSpent} minutes total, ${averageTime} minutes average per task.`
+      );
+      setShowHistogram(true); // Show histogram after analysis
     } catch (error) {
       console.error('Error getting analytics:', error);
       setAnalyticsResult('Error generating analytics. Please try again.');
@@ -41,15 +72,81 @@ function Analytics() {
     }
   };
 
+  const getFilteredTasks = () => {
+    const now = new Date();
+    let cutoffDate;
+
+    if (selectedPeriod === 'last-week') {
+      // Get tasks from the last 7 days
+      cutoffDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+    } else {
+      // Get tasks from the last 30 days
+      cutoffDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+    }
+
+    return userTasks.filter(task => {
+      if (!task.completedAt) return false;
+      
+      // Parse the date string (assuming format like "12/25/2024")
+      const taskDate = new Date(task.completedAt);
+      
+      // Check if the date is valid and within the selected period
+      return !isNaN(taskDate.getTime()) && taskDate >= cutoffDate && taskDate <= now;
+    });
+  };
+
+  // Get the last 7 completed tasks for histogram
+  const getHistogramData = () => {
+    const filteredTasks = getFilteredTasks();
+    
+    // Sort by completion date (most recent first) and take last 7
+    const sortedTasks = filteredTasks
+      .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+      .slice(0, 7)
+      .reverse(); // Reverse to show oldest to newest in histogram
+    
+    return sortedTasks.map(task => ({
+      name: task.text.length > 12 ? task.text.substring(0, 12) + '...' : task.text,
+      timeSpent: task.timeSpent || 0,
+      fullName: task.text,
+      id: task.id
+    }));
+  };
+
   const handleGetResponse = async () => {
     if (!question.trim()) return;
-    
     setIsGettingResponse(true);
     try {
-      // Simulate API call for chat response
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Filter tasks based on selected period
+      const filteredTasks = getFilteredTasks();
       
-      setChatResponse(`Here's the response to your question: "${question}". This is where the AI-generated answer would appear.`);
+      console.log('Filtered tasks for', selectedPeriod, ':', filteredTasks);
+      
+      // Prepare minimal task info for backend
+      const tasksForAI = filteredTasks.map(task => ({
+        name: task.text,
+        timeSpent: task.timeSpent || task.minutes || 0,
+        completedAt: task.completedAt
+      }));
+      
+      console.log('Tasks being sent to AI:', tasksForAI);
+      
+      // Send question and tasks to backend
+      const response = await fetch('/generate-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: question,
+          tasks: tasksForAI
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setChatResponse(data.response || 'No response from AI.');
     } catch (error) {
       console.error('Error getting response:', error);
       setChatResponse('Error getting response. Please try again.');
@@ -63,6 +160,13 @@ function Analytics() {
       handleGetResponse();
     }
   };
+
+  // Get count of filtered tasks for display
+  const filteredTasksCount = getFilteredTasks().length;
+  const histogramData = getHistogramData();
+
+  // Calculate max value for scaling
+  const maxTimeSpent = Math.max(...histogramData.map(item => item.timeSpent), 1);
 
   return (
     <>
@@ -108,15 +212,56 @@ function Analytics() {
         <div className="analytics-section">
           <div className="analytics-box">
             <div className="analytics-content">
-              {analyticsResult ? (
+              {showHistogram && histogramData.length > 0 ? (
+                <div className="histogram-container">
+                  <h3 className="histogram-title">Time Spent on Recent Tasks</h3>
+                  <div className="histogram-chart">
+                    <div className="histogram-y-axis">
+                      <div className="y-axis-label">Time (minutes)</div>
+                      <div className="y-axis-ticks">
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="y-tick">
+                            {Math.round((maxTimeSpent * (5 - i)) / 5)}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="histogram-bars">
+                      {histogramData.map((item, index) => (
+                        <div key={`${item.id}-${index}`} className="histogram-bar-container">
+                          <div 
+                            className="histogram-bar"
+                            style={{
+                              height: `${Math.max((item.timeSpent / maxTimeSpent) * 100, 5)}%`,
+                              animationDelay: `${index * 0.1}s`
+                            }}
+                            title={`${item.fullName}: ${item.timeSpent} minutes`}
+                          >
+                            <span className="bar-value">{item.timeSpent}m</span>
+                          </div>
+                          <div className="histogram-label" title={item.fullName}>
+                            {item.name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="histogram-footer">
+                    <p>Showing last {histogramData.length} completed tasks ({selectedPeriod === 'last-week' ? 'last week' : 'last month'})</p>
+                  </div>
+                </div>
+              ) : analyticsResult ? (
                 <div className="analytics-result">
                   <i className="fas fa-chart-line"></i>
                   <p>{analyticsResult}</p>
                 </div>
               ) : (
                 <div className="analytics-placeholder">
-                  <i className="fas fa-analytics"></i>
-                  <p>Get analytics for {selectedPeriod === 'last-week' ? 'last week' : 'last month'}</p>
+                  <i className="fas fa-chart-bar"></i>
+                  <p>No completed tasks found for {selectedPeriod === 'last-week' ? 'last week' : 'last month'}</p>
+                  <p className="task-count">
+                    {filteredTasksCount} completed tasks in selected period
+                  </p>
                 </div>
               )}
             </div>
@@ -139,7 +284,7 @@ function Analytics() {
             <button 
               onClick={handleAnalyze}
               className="analyze-btn"
-              disabled={isAnalyzing}
+              disabled={isAnalyzing || filteredTasksCount === 0}
             >
               {isAnalyzing ? (
                 <>
@@ -149,7 +294,7 @@ function Analytics() {
               ) : (
                 <>
                   <i className="fas fa-chart-bar"></i>
-                  Analyze
+                  Analyze Tasks
                 </>
               )}
             </button>
@@ -163,12 +308,17 @@ function Analytics() {
               {chatResponse ? (
                 <div className="chat-result">
                   <i className="fas fa-robot"></i>
-                  <p>{chatResponse}</p>
+                  <div className="chat-text">
+                    <p>{chatResponse}</p>
+                  </div>
                 </div>
               ) : (
                 <div className="chat-placeholder">
                   <i className="fas fa-comments"></i>
                   <p>Ask anything about your productivity data</p>
+                  <p className="chat-help-text">
+                    Try asking: "How productive was I this week?" or "What patterns do you see in my work?"
+                  </p>
                 </div>
               )}
             </div>
@@ -181,9 +331,12 @@ function Analytics() {
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 onKeyPress={handleQuestionKeyPress}
-                placeholder="Ask anything..."
+                placeholder="Ask about your productivity patterns..."
                 className="question-input"
               />
+              <small className="input-help">
+                Analyzing {filteredTasksCount} tasks from {selectedPeriod === 'last-week' ? 'last week' : 'last month'}
+              </small>
             </div>
 
             <button 

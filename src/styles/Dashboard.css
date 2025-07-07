@@ -155,12 +155,52 @@ nav {
     text-shadow: 0 0 20px rgba(177, 156, 217, 0.3);
 }
 
-/* Quick Stats */
-.quick-stats {
+/* Dashboard Layout */
+.dashboard-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
     gap: 2rem;
     margin-bottom: 3rem;
+}
+
+.left-section {
+    grid-column: 1 / 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2rem;
+    height: 100%;
+}
+
+.right-section {
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Quick Stats */
+.quick-stats {
+    display: contents;
+}
+
+.stat-card:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.stat-card:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.stat-card:nth-child(3) {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .stat-card {
@@ -207,8 +247,10 @@ nav {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 15px;
     padding: 2rem;
-    margin-bottom: 3rem;
     transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .activity-section:hover {
@@ -228,6 +270,10 @@ nav {
     text-align: center;
     padding: 2rem;
     font-style: italic;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Dashboard Grid */
@@ -485,6 +531,41 @@ nav {
         font-size: 2.5rem;
     }
     
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+    
+    .left-section {
+        grid-column: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .right-section {
+        grid-column: 1;
+        grid-row: auto;
+    }
+    
+    .quick-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .stat-card:nth-child(1),
+    .stat-card:nth-child(2),
+    .stat-card:nth-child(3) {
+        grid-column: unset;
+        grid-row: unset;
+    }
+    
     .quick-stats {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -560,3 +641,114 @@ nav {
         font-size: 2rem;
     }
 }
+
+.calendar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    color: #fff;
+    padding-top: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #b19cd9;
+}
+
+.calendar-header button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 1rem;
+    transition: color 0.3s ease;
+}
+
+.calendar-header button:hover {
+    color: #d53f8c;
+}
+
+.calendar-month {
+    background: linear-gradient(45deg, #b19cd9, #d53f8c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+.calendar-days-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.calendar-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+}
+
+.calendar-cell {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    border-radius: 50%; /* makes it a circle */
+    margin: 4px auto;
+    color: #fff;
+}
+
+.calendar-cell:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.calendar-cell.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.calendar-cell.selected {
+    background: linear-gradient(45deg, #b19cd9, #d53f8c);
+    color: white;
+    font-weight: bold;
+}
+
+/* .calendar-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    justify-items: center;
+} */
+/* .calendar-day-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+} */
+
+/* .day-number {
+  font-size: 1rem;
+  color: #fff;
+} */
+
+.tick {
+  font-size: 0.6rem;         /* Slightly larger */
+  line-height: 1;
+  margin-top: -12px;          /* Move it closer to the number */
+  color: #fff;               /* White tick */
+}
+
