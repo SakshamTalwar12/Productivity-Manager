@@ -72,7 +72,6 @@ function About() {
           <div className="about-flex">
             <div className="about-card" id="about1">
               <div className="about-image">
-                <img src="/images/anime girl 3.jpg" alt="Aaryan Mishra" />
               </div>
               <div className="about-text">
                 <h2>Aaryan Mishra</h2>
@@ -87,15 +86,14 @@ function About() {
 
             <div className="about-card" id="about2">
               <div className="about-image">
-                <img src="/images/anime girl 7.jpg" alt="Saksham Talwar" />
               </div>
               <div className="about-text">
                 <h2>Saksham Talwar</h2>
                 <p>
-                  Despite these advancements, the human element remains essential. Creativity, empathy, and intuition continue to play 
-                  a crucial role in decision-making and problem-solving. Education and lifelong learning are more important than ever, 
-                  as individuals adapt to new skills and knowledge in an ever-changing workforce. Remote work, once a niche concept, 
-                  has become a norm, allowing individuals to collaborate across the globe without geographical limitations.
+                Made the Frontend along with Aaryan Mishra using React + VanillaCSS.
+                Integrated backend using PostgreSQL and SupaBase on hosted Website.
+                Added API'S including Gemini API along with other features like Histogram which display analysis of the tasks done by the user.
+                Added Fully Functional Register/Login Pages using DB authenticated login which gets saved.
                 </p>
               </div>
             </div>

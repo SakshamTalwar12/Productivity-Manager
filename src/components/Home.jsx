@@ -95,7 +95,7 @@ function Home() {
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-image">
-                <img src="/images/tasks.jpg" alt="Task Management" />
+                <img src="/images/taskmanagament.jpg" alt="Task Management" />
               </div>
               <div className="feature-text">
                 <h2>Task Management</h2>
@@ -104,7 +104,7 @@ function Home() {
             </div>
             <div className="feature-card">
               <div className="feature-image">
-                <img src="/images/cll.jpg" alt="Time Tracking" />
+                <img src="/images/timetracking.jpg" alt="Time Tracking" />
               </div>
               <div className="feature-text">
                 <h2>Time Tracking</h2>
@@ -113,7 +113,7 @@ function Home() {
             </div>
             <div className="feature-card">
               <div className="feature-image">
-                <img src="/images/insight.webp" alt="Progress Analytics" />
+                <img src="/images/progressanalytics.jpg" alt="Progress Analytics" />
               </div>
               <div className="feature-text">
                 <h2>Progress Analytics</h2>
@@ -131,7 +131,7 @@ function Home() {
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-image">
-                <img src="/images/po.jpg" alt="Maximize Productivity" />
+                <img src="/images/productivityimage.jpg" alt="Maximize Productivity" />
               </div>
               <div className="feature-text">
                 <h2>Maximize Productivity</h2>
@@ -140,7 +140,7 @@ function Home() {
             </div>
             <div className="feature-card">
               <div className="feature-image">
-                <img src="/images/calender.webp" alt="Smart Calendar" />
+                <img src="/images/calender.jpg" alt="Smart Calendar" />
               </div>
               <div className="feature-text">
                 <h2>Smart Calendar</h2>
@@ -149,10 +149,10 @@ function Home() {
             </div>
             <div className="feature-card">
               <div className="feature-image">
-                <img src="/images/ree.webp" alt="Custom Reports" />
+                <img src="/images/aipowered.jpg" alt="Custom Reports" />
               </div>
               <div className="feature-text">
-                <h2>Custom Reports</h2>
+                <h2>AI Powered</h2>
                 <p>Generate detailed reports and insights about your productivity patterns.</p>
               </div>
             </div>
