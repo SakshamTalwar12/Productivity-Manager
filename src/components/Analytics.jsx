@@ -168,6 +168,19 @@ function Analytics() {
   // Calculate max value for scaling
   const maxTimeSpent = Math.max(...histogramData.map(item => item.timeSpent), 1);
 
+  const yAxisTicks = (() => {
+    const ticks = [];
+    let lastValue = null;
+    for (let i = 0; i < 6; i++) {
+      const value = Math.round((maxTimeSpent * (5 - i)) / 5);
+      if (value !== lastValue) {
+        ticks.push(<div key={i} className="y-tick">{value}</div>);
+        lastValue = value;
+      }
+    }
+    return ticks;
+  })();
+
   return (
     <>
       <nav>
@@ -219,11 +232,7 @@ function Analytics() {
                     <div className="histogram-y-axis">
                       <div className="y-axis-label">Time (minutes)</div>
                       <div className="y-axis-ticks">
-                        {[...Array(6)].map((_, i) => (
-                          <div key={i} className="y-tick">
-                            {Math.round((maxTimeSpent * (5 - i)) / 5)}
-                          </div>
-                        ))}
+                        {yAxisTicks}
                       </div>
                     </div>
                     <div className="histogram-bars">
@@ -301,8 +310,11 @@ function Analytics() {
           </div>
         </div>
 
-        {/* Chat Section */}
-        <div className="chat-section">
+        {/* Add extra spacing between histogram and Gemini sections */}
+        <div style={{ marginTop: '48px' }}></div>
+
+        {/* Gemini (AI chat) Section */}
+        <div className="gemini-section">
           <div className="chat-box">
             <div className="chat-content">
               {chatResponse ? (

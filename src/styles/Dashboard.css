@@ -752,3 +752,340 @@ nav {
   color: #fff;               /* White tick */
 }
 
+
+/* Dashboard.css - Updated with Reminders functionality */
+
+/* ... (keep all existing styles) ... */
+
+/* Updated Tasks/Reminders Section */
+.reminders-container {
+  max-height: 240px; /* Height for exactly 3 tasks */
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding-right: 0.5rem;
+}
+
+.reminders-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.reminders-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.reminders-container::-webkit-scrollbar-thumb {
+  background: rgba(177, 156, 217, 0.5);
+  border-radius: 3px;
+}
+
+.reminders-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(177, 156, 217, 0.7);
+}
+
+.reminder-item {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.reminder-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.reminder-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(3px);
+}
+
+.reminder-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.reminder-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.reminder-datetime {
+  font-size: 0.85rem;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reminder-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.action-btn {
+  width: 35px;
+  height: 35px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tick-btn {
+  background: linear-gradient(45deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.tick-btn:hover {
+  background: linear-gradient(45deg, #16a34a, #15803d);
+}
+
+.cross-btn {
+  background: linear-gradient(45deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.cross-btn:hover {
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+}
+
+.add-reminder-btn {
+  width: 100%;
+  background: linear-gradient(45deg, #b19cd9, #9c89c9);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.add-reminder-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(177, 156, 217, 0.3);
+  background: linear-gradient(45deg, #9c89c9, #8b7ac7);
+}
+
+.add-reminder-btn:active {
+  transform: translateY(0);
+}
+
+/* Add Reminder Form */
+.add-reminder-form {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  color: #b19cd9;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #b19cd9;
+  box-shadow: 0 0 0 2px rgba(177, 156, 217, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.form-group select option {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.datetime-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.form-btn {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.save-btn {
+  background: linear-gradient(45deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.save-btn:hover {
+  background: linear-gradient(45deg, #16a34a, #15803d);
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.empty-reminders {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 2rem;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.empty-reminders i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+  color: #444;
+}
+
+/* Priority styles remain the same */
+.priority {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  margin-bottom: 0.3rem;
+}
+
+.priority.high { 
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.priority.medium { 
+  background: rgba(249, 115, 22, 0.2);
+  color: #f97316;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.priority.low { 
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Responsive updates */
+@media (max-width: 768px) {
+  .datetime-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-btn {
+    width: 100%;
+  }
+  
+  .reminder-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .reminder-actions {
+    align-self: flex-end;
+  }
+}
+
+
+/* Limit width of react-time-picker */
+.react-time-picker {
+  width: 100%; /* Or a fixed width like 180px */
+  max-width: 200px;
+  font-size: 0.95rem;
+}
+
+.react-time-picker__wrapper {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 8px;
+  background-color: #fff;
+}
+
+/* Add any other existing styles that weren't shown in the original file */

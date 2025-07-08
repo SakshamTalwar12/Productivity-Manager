@@ -269,6 +269,7 @@ function Home() {
           <form className="newsletter-form">
             <input type="email" placeholder="Enter your email" />
             <button type="submit">Subscribe</button>
+            <Link to="/contact" className="contact-button" style={{marginLeft: '1em'}}>Contact Us</Link>
           </form>
         </div>
       </section>

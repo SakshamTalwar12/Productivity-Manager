@@ -7,6 +7,7 @@ import Login from './components/Login.jsx'
 import Register from './components/Register.jsx'
 import ToDoList from './components/ToDoList.jsx';
 import Analytics from './components/Analytics.jsx';
+import Contact from './components/Contact.jsx';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/todo" element={<ToDoList />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </Router>
   );

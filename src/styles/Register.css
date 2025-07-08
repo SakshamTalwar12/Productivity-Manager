@@ -23,14 +23,15 @@
 }
 
 .auth-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
-    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1.5px solid #b19cd9;
+    border-radius: 22px;
+    padding: 3rem 2.5rem 2.5rem 2.5rem;
     width: 100%;
-    max-width: 400px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    max-width: 420px;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 8px 32px 0 rgba(177, 156, 217, 0.18), 0 2px 24px 0 rgba(106,130,251,0.10);
+    margin: 2rem 0;
 }
 
 .auth-header {

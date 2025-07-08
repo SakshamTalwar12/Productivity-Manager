@@ -102,6 +102,10 @@ app.post("/api/login", async (req, res) => {
       const storedPassword = user.password;
 
       if (password === storedPassword) {
+        await db.query(
+    "INSERT INTO logins (user_id, login_date) VALUES ($1, CURRENT_DATE) ON CONFLICT DO NOTHING",
+    [user.id]
+  );
         res.json({ 
           message: "Login successful", 
           user: { id: user.id, email: user.email } 
@@ -339,6 +343,40 @@ app.put("/api/tasks/:id/pause", async (req, res) => {
   }
 });
 
+app.get("/api/login-dates/:userId", async (req, res) => {
+
+  const userId = req.params.userId;
+
+
+
+  try {
+
+    const result = await db.query(
+
+      "SELECT TO_CHAR(login_date, 'YYYY-MM-DD') as date FROM logins WHERE user_id = $1",
+
+      [userId]
+
+    );
+
+
+
+    const dates = result.rows.map(row => row.date);
+
+    res.json({ loginDates: dates });
+
+
+
+  } catch (err) {
+
+    console.error("Error fetching login dates:", err);
+
+    res.status(500).json({ error: "Failed to fetch login dates" });
+
+  }
+
+});
+
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
@@ -401,9 +439,9 @@ app.post("/generate-response", async (req, res) => {
     }
 
     // Combine user prompt with task context
-    const fullPrompt = `You are a productivity assistant. A user is asking about their work patterns and productivity. 
+    const fullPrompt = `You are a productivity assistant. A user is asking about their work patterns and productivity.Consider everything that user puts in as task.
 
-User's Question: "${prompt}"
+User's Question: "${fullPrompt}"
 
 ${taskContext}
 
