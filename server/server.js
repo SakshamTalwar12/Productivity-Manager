@@ -468,6 +468,35 @@ Please provide a helpful, insightful response about their productivity patterns,
   }
 });
 
+
+// Get 7 most recent completed tasks for pie chart
+app.get("/api/recent-tasks/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const result = await db.query(
+      `SELECT id, text, time_spent, completed_at
+       FROM tasks
+       WHERE user_id = $1 AND completed_at IS NOT NULL
+       ORDER BY completed_at DESC
+       LIMIT 7`,
+      [userId]
+    );
+
+    const recentTasks = result.rows.map(task => ({
+      id: task.id,
+      title: task.text,
+      time_spent: task.time_spent,
+      completed_at: task.completed_at,
+    }));
+
+    res.json(recentTasks);
+  } catch (err) {
+    console.error("Error fetching recent tasks:", err);
+    res.status(500).json({ error: "Failed to fetch recent tasks" });
+  }
+});
+
 // Debug middleware
 app.use((req, res, next) => {
   console.log("Unhandled request:", req.method, req.url);

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate  } from "react-router-dom";
 import "../styles/Dashboard.css";
 import ScrollAnimation from "./ScrollAnimation.jsx";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, format, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import TimePicker from 'react-time-picker';
 import 'react-time-picker/dist/TimePicker.css';
@@ -334,6 +335,57 @@ function RemindersSection() {
   );
 }
 
+
+const COLORS = ['#b19cd9', '#d53f8c', '#f97316', '#22c55e', '#dc2626', '#9c89c9', '#16a34a'];
+
+function ProductivityPieChart() {
+  const [taskData, setTaskData] = useState([]);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user?.id) {
+      fetch(`/api/recent-tasks/${user.id}`)  // Replace with your backend route
+        .then(res => res.json())
+        .then(data => {
+          const tasks = (data || []).slice(0, 7).map(task => ({
+            name: task.title || `Task ${task.id}`,
+            value: task.time_spent || 0,
+          }));
+          setTaskData(tasks);
+        });
+    }
+  }, []);
+
+  if (taskData.length === 0) {
+    return <p style={{ textAlign: 'center', marginTop: '1rem', color: '#aaa' }}>No recent tasks to show.</p>;
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+  <PieChart>
+    <Pie
+      data={taskData}
+      dataKey="value"
+      nameKey="name"
+      cx="50%"
+      cy="50%"
+      outerRadius={80}
+      label={({ name, value }) => `${name}: ${value} min${value === 1 ? '' : 's'}`}
+    >
+      {taskData.map((_, index) => (
+        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+      ))}
+    </Pie>
+    <Tooltip
+      formatter={(value) => `${value} min${value === 1 ? '' : 's'}`}
+    />
+    <Legend />
+  </PieChart>
+</ResponsiveContainer>
+
+  );
+}
+
 function Dashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dashboardStats, setDashboardStats] = useState({
@@ -479,12 +531,15 @@ function Dashboard() {
             <RemindersSection />
             <div className="grid-item productivity-trends" id="productivity-section">
               <h3>Productivity Trends</h3>
-              <p className="no-chart-placeholder">Productivity chart has been removed.</p>
+              <ProductivityPieChart />
               <div className="calendar-integration">
                 <button id="authorize_button" style={{ visibility: 'hidden' }}>
                   Authorize Calendar
                 </button>
               </div>
+              <p style={{  color: '#aaa', fontSize: '0.95rem', textAlign: 'center' }}>
+  This chart shows a comprehensive breakdown of the last 7 tasks you completed, based on time spent.
+</p>
             </div>
           </div>
         </main>
