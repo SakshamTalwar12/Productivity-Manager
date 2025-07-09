@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "main": "server.js",
+   "scripts": {
+    "start": "node server.js",
+    "heroku-postbuild": "cd .. && npm install && npm run build"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "body-parser": "^1.20.2",
