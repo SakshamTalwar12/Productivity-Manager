@@ -21,10 +21,14 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const db = new pg.Client({
-  connectionString: process.env.DATABASE_URL,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: 5432,
   ssl: {
-    rejectUnauthorized: false, // Necessary for Supabase SSL
-  },
+    rejectUnauthorized: false,
+  }
 });
 
 db.connect();
