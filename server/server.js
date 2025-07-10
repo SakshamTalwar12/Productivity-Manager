@@ -501,13 +501,13 @@ app.get("/api/recent-tasks/:userId", async (req, res) => {
 });
 
 
-// Serve static React build files
-app.use(express.static(path.join(__dirname, "../build")));
+//  Serve static React build files
+// app.use(express.static(path.join(__dirname, "../build")));
 
-// For any non-API routes, serve React's index.html
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../build", "index.html"));
-});
+//  For any non-API routes, serve React's index.html
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../build", "index.html"));
+// });
 
 // Debug middleware
 app.use((req, res, next) => {
