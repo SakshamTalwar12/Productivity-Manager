@@ -21,11 +21,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const db = new pg.Client({
-  user: "postgres",
-  host: "localhost",
-  database: "productivity",
-  password: process.env.DB_PASSWORD,
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Necessary for Supabase SSL
+  },
 });
 
 db.connect();
@@ -55,11 +54,9 @@ const isAuthenticated = (req, res, next) => {
 };
 
 // Serve React app
-app.use(express.static(path.join(__dirname, "build")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
+// app.get("/", (req, res) => {
+//   res.sendFile(path.join(__dirname, 'build', 'index.html'));
+// });
 
 // API Routes
 app.post("/api/register", async (req, res) => {
@@ -499,6 +496,15 @@ app.get("/api/recent-tasks/:userId", async (req, res) => {
   }
 });
 
+
+// Serve static React build files
+app.use(express.static(path.join(__dirname, "../build")));
+
+// For any non-API routes, serve React's index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../build", "index.html"));
+});
+
 // Debug middleware
 app.use((req, res, next) => {
   console.log("Unhandled request:", req.method, req.url);
@@ -510,6 +516,8 @@ app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
   res.status(500).json({ error: "Internal server error" });
 });
+
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

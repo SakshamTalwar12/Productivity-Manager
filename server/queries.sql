@@ -15,3 +15,9 @@ CREATE TABLE tasks (
     paused_at TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS logins (
+  id SERIAL PRIMARY KEY,
+  user_id INT REFERENCES users(id),
+  login_date DATE DEFAULT CURRENT_DATE
+);
+
