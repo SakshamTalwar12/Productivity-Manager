@@ -707,7 +707,7 @@ nav {
     text-align: center;
     cursor: pointer;
     transition: background 0.3s ease;
-    border-radius: 50%; /* makes it a circle */
+    border-radius: 50%; 
     margin: 4px auto;
     color: #fff;
 }
@@ -727,29 +727,12 @@ nav {
     font-weight: bold;
 }
 
-/* .calendar-row {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    justify-items: center;
-} */
-/* .calendar-day-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-} */
-
-/* .day-number {
-  font-size: 1rem;
-  color: #fff;
-} */
 
 .tick {
-  font-size: 0.6rem;         /* Slightly larger */
+  font-size: 0.6rem;     
   line-height: 1;
-  margin-top: -12px;          /* Move it closer to the number */
-  color: #fff;               /* White tick */
+  margin-top: -12px;         
+  color: #fff;               
 }
 
 
@@ -759,7 +742,7 @@ nav {
 
 /* Updated Tasks/Reminders Section */
 .reminders-container {
-  max-height: 240px; /* Height for exactly 3 tasks */
+  max-height: 240px; 
   overflow-y: auto;
   margin-bottom: 1rem;
   padding-right: 0.5rem;
@@ -1076,7 +1059,7 @@ nav {
 
 /* Limit width of react-time-picker */
 .react-time-picker {
-  width: 100%; /* Or a fixed width like 180px */
+  width: 100%; 
   max-width: 200px;
   font-size: 0.95rem;
 }
