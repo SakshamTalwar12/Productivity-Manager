@@ -151,7 +151,7 @@ function ToDoList() {
     if (activeTask) {
       if (newPausedState) {
         // Pausing - update paused_at
-        fetch(`/api/tasks/${activeTask.id}/pause`, {
+        fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${activeTask.id}/pause`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ pausedAt: new Date().toISOString() })
@@ -166,7 +166,7 @@ function ToDoList() {
         });
       } else {
         // Resuming - clear paused_at
-        fetch(`/api/tasks/${activeTask.id}/pause`, {
+        fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${activeTask.id}/pause`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ pausedAt: null })
@@ -189,7 +189,7 @@ function ToDoList() {
       completeTaskWithTimer(activeTask, `${timeWorked} minutes`);
       
       // Clear paused_at when completing task
-      fetch(`/api/tasks/${activeTask.id}/pause`, {
+      fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${activeTask.id}/pause`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pausedAt: null })
@@ -203,7 +203,7 @@ function ToDoList() {
   const resetTimer = () => {
     if (activeTask) {
       // Clear paused_at when resetting timer
-      fetch(`/api/tasks/${activeTask.id}/pause`, {
+      fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${activeTask.id}/pause`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pausedAt: null })
@@ -230,7 +230,7 @@ function ToDoList() {
   const addTask = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (newTask.trim() && user) {
-      fetch('/api/tasks', {
+      fetch(`${process.env.REACT_APP_API_URL}/api/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id, text: newTask, minutes: parseInt(newTaskTime, 10) || 25 })
@@ -249,7 +249,7 @@ function ToDoList() {
   };
 
   const deleteTask = (taskId) => {
-    fetch(`/api/tasks/${taskId}`, { method: 'DELETE' })
+    fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${taskId}`, { method: 'DELETE' })
       .then(() => setTasks(prev => prev.filter(task => task.id !== taskId)))
       .catch(error => {
         console.error('Error deleting task:', error);
@@ -261,7 +261,7 @@ function ToDoList() {
   };
 
   const completeTaskWithTimer = (task, timeSpent) => {
-    fetch(`/api/tasks/${task.id}/complete`, {
+    fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${task.id}/complete`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ timeSpent })
@@ -287,7 +287,7 @@ function ToDoList() {
         return;
       }
 
-      fetch(`/api/tasks/${timeModal.task.id}/complete`, {
+      fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${timeModal.task.id}/complete`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ timeSpent: parsedTime })
@@ -317,7 +317,7 @@ function ToDoList() {
 
   // Fixed: Delete completed task with API call
   const deleteCompletedTask = (taskId) => {
-    fetch(`/api/tasks/${taskId}`, { method: 'DELETE' })
+    fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${taskId}`, { method: 'DELETE' })
       .then(() => {
         setCompletedTasks(prev => prev.filter(task => task.id !== taskId));
       })
@@ -343,7 +343,7 @@ function ToDoList() {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
-      fetch(`/api/tasks/${user.id}`)
+      fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${user.id}`)
         .then(res => res.json())
         .then(data => {
           setTasks(data.pending || []);

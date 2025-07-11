@@ -33,7 +33,7 @@ function Analytics() {
 
   const fetchUserTasks = async (userId) => {
     try {
-      const response = await fetch(`/api/tasks/${userId}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/tasks/${userId}`);
       const data = await response.json();
       // Combine pending and completed for context
       setUserTasks([...(data.pending || []), ...(data.completed || [])]);
@@ -132,7 +132,7 @@ function Analytics() {
       console.log('Tasks being sent to AI:', tasksForAI);
       
       // Send question and tasks to backend
-      const response = await fetch('/generate-response', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/generate-response`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

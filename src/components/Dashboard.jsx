@@ -50,7 +50,7 @@ function Calendar() {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user?.id) {
-      fetch(`/api/login-dates/${user.id}`)
+      fetch(`${process.env.REACT_APP_API_URL}/api/login-dates/${user.id}`)
         .then(res => res.json())
         .then(data => {
           setLoginDates(data.loginDates || []);
@@ -344,7 +344,7 @@ function ProductivityPieChart() {
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user?.id) {
-      fetch(`/api/recent-tasks/${user.id}`)  // Replace with your backend route
+      fetch(`${process.env.REACT_APP_API_URL}/api/recent-tasks/${user.id}`)  // Replace with your backend route
         .then(res => res.json())
         .then(data => {
           const tasks = (data || []).slice(0, 7).map(task => ({
@@ -406,7 +406,7 @@ function Dashboard() {
       const userId = JSON.parse(user).id;
 
       // Fetch dashboard stats
-      fetch(`/api/dashboard-stats/${userId}`)
+      fetch(`${process.env.REACT_APP_API_URL}/api/dashboard-stats/${userId}`)
         .then(res => res.json())
         .then(data => {
           console.log("📊 Type of total_hours:", typeof data.total_hours);
@@ -420,7 +420,7 @@ function Dashboard() {
         .catch(err => console.error("Failed to fetch dashboard stats", err));
 
       // Fetch login dates and calculate streak
-      fetch(`/api/login-dates/${userId}`)
+      fetch(`${process.env.REACT_APP_API_URL}/api/login-dates/${userId}`)
         .then(res => res.json())
         .then(data => {
           const dates = data.loginDates || [];

@@ -26,12 +26,16 @@ const db = new pg.Client({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: 5432,
-  ssl: {
-    rejectUnauthorized: false,
-  }
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-db.connect();
+db.connect()
+  .then(() => console.log("✅ PostgreSQL connected successfully"))
+  .catch((err) => {
+    console.error("❌ Failed to connect to PostgreSQL:", err);
+    process.exit(1);
+  });
+
 
 // Middleware
 app.use(cors());
@@ -428,6 +432,10 @@ app.post("/generate-response", async (req, res) => {
         message: "Please provide a valid prompt" 
       });
     }
+      console.log("🔑 Gemini Key:", process.env.GEMINI_API_KEY?.slice(0, 10));  // partial key check
+    console.log("📥 Prompt received:", prompt);
+    console.log("📊 Tasks received:", tasks);
+
 
     // Create context from tasks
     let taskContext = "";
@@ -444,7 +452,7 @@ app.post("/generate-response", async (req, res) => {
     // Combine user prompt with task context
     const fullPrompt = `You are a productivity assistant. A user is asking about their work patterns and productivity.Consider everything that user puts in as task.
 
-User's Question: "${fullPrompt}"
+User's Question: "${prompt}"
 
 ${taskContext}
 
