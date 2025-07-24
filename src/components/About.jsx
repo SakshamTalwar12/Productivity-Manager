@@ -90,10 +90,7 @@ function About() {
               <div className="about-text">
                 <h2>Saksham Talwar</h2>
                 <p>
-                Made the Frontend along with Aaryan Mishra using React + VanillaCSS.
-                Integrated backend using PostgreSQL and SupaBase on hosted Website.
-                Added API'S including Gemini API along with other features like Histogram which display analysis of the tasks done by the user.
-                Added Fully Functional Register/Login Pages using DB authenticated login which gets saved.
+                Digga
                 </p>
               </div>
             </div>
